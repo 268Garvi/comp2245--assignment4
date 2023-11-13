@@ -63,10 +63,27 @@ $superheroes = [
   ], 
 ];
 
-?>
-
-<ul>
-<?php foreach ($superheroes as $superhero): ?>
-  <li><?= $superhero['alias']; ?></li>
-<?php endforeach; ?>
-</ul>
+function sanitization($data) {
+    $data = htmlspecialchars($data);
+    $data = stripslashes($data);
+    $data = trim($data);
+    return $data;
+  }
+  
+  if ($_SERVER['REQUEST_METHOD'] == 'GET') {
+    $userInput = isset($_GET["HeroSearch"]) ? $_GET["HeroSearch"] : '';
+    $searchQuery = sanitization($userInput);
+  
+    if (empty($searchQuery)) {
+      echo json_encode($superheroes); // Return all superheroes if search query is empty
+    } else {
+      $foundSuperheroes = [];
+      foreach ($superheroes as $superhero) {
+        if (stripos($superhero['name'], $searchQuery) !== false || stripos($superhero['alias'], $searchQuery) !== false) {
+          $foundSuperheroes[] = $superhero;
+        }
+      }
+      echo json_encode($foundSuperheroes); // Return matching superheroes
+    }
+  }
+  ?>
